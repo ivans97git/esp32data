@@ -9,7 +9,7 @@ const humidityElement = document.getElementById("humidity");
 
 // Cliente MQTT
 const clientId = "web_" + parseInt(Math.random() * 100, 10);
-const client = new Paho.MQTT.Client(broker, port, clientId);
+const client = new Paho.Client(broker, port, clientId);
 
 // Manejo de conexión perdida
 client.onConnectionLost = (response) => {
