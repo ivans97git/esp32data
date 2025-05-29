@@ -1,0 +1,18 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 50px;
+}
+
+.data {
+    font-size: 24px;
+    margin: 20px;
+}
+
+#temperature {
+    color: #e74c3c;
+}
+
+#humidity {
+    color: #3498db;
+}

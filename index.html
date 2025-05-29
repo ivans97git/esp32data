@@ -4,24 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESP32 DHT11 Monitor</title>
+    <link rel="stylesheet" href="style.css"> <!-- Opcional -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-        }
-        .data {
-            font-size: 24px;
-            margin: 20px;
-        }
-        #temperature {
-            color: #e74c3c;
-        }
-        #humidity {
-            color: #3498db;
-        }
-    </style>
+    <script src="script.js" defer></script> <!-- Importa JavaScript -->
 </head>
 <body>
     <h1>ESP32 con DHT11 - Monitoreo en Tiempo Real</h1>
@@ -35,42 +20,5 @@
         <strong>Humedad:</strong>
         <span id="humidity">--</span> %
     </div>
-
-    <script>
-        // Configuración MQTT (HiveMQ Cloud)
-        const broker = "90883d7a8ff64950af6e002e4bd77ee3.s1.eu.hivemq.cloud"; // Cambia por tu broker
-        const port = 8884; // Websocket (SSL)
-        const topic = "casa/dht11";
-        
-        // Conexión MQTT
-        const client = new Paho.MQTT.Client(broker, port, "web_" + parseInt(Math.random() * 100, 10));
-        
-        client.onConnectionLost = (response) => {
-            console.log("Conexión perdida:", response.errorMessage);
-        };
-        
-        client.onMessageArrived = (message) => {
-            const data = JSON.parse(message.payloadString);
-            document.getElementById("temperature").textContent = data.temperatura;
-            document.getElementById("humidity").textContent = data.humedad;
-            console.log("Datos recibidos:", data);
-        };
-        
-        const options = {
-            useSSL: true,
-            userName: "github", // Cambia por tu usuario
-            password: "Ivan4826", // Cambia por tu contraseña
-            onSuccess: () => {
-                console.log("Conectado a HiveMQ Cloud");
-                client.subscribe(topic);
-            },
-            onFailure: (err) => {
-                console.error("Error de conexión:", err.errorMessage);
-            }
-        };
-        
-        // Iniciar conexión
-        client.connect(options);
-    </script>
 </body>
 </html>
