@@ -1,164 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Monitor DHT11 con ESP32</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 DHT11 Monitor</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .data-container { display: flex; justify-content: space-between; margin-bottom: 20px; }
-        .data-box { width: 48%; padding: 15px; border-radius: 8px; text-align: center; }
-        #temp-box { background-color: #ffcccc; border: 2px solid #ff6666; }
-        #hum-box { background-color: #ccccff; border: 2px solid #6666ff; }
-        .chart-container { margin-top: 30px; }
-        #messages { height: 200px; border: 1px solid #ddd; overflow-y: scroll; padding: 10px; margin-bottom: 20px; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .data {
+            font-size: 24px;
+            margin: 20px;
+        }
+        #temperature {
+            color: #e74c3c;
+        }
+        #humidity {
+            color: #3498db;
+        }
     </style>
 </head>
 <body>
-    <h1>Monitor de Temperatura y Humedad</h1>
-    <p>Datos en tiempo real desde ESP32 con DHT11</p>
+    <h1>ESP32 con DHT11 - Monitoreo en Tiempo Real</h1>
     
-    <div class="data-container">
-        <div id="temp-box" class="data-box">
-            <h2>Temperatura</h2>
-            <div id="temperature" style="font-size: 24px; font-weight: bold;">-- °C</div>
-        </div>
-        <div id="hum-box" class="data-box">
-            <h2>Humedad</h2>
-            <div id="humidity" style="font-size: 24px; font-weight: bold;">-- %</div>
-        </div>
+    <div class="data">
+        <strong>Temperatura:</strong>
+        <span id="temperature">--</span> °C
     </div>
     
-    <div class="chart-container">
-        <canvas id="sensorChart"></canvas>
+    <div class="data">
+        <strong>Humedad:</strong>
+        <span id="humidity">--</span> %
     </div>
-    
-    <div id="messages"></div>
-    
+
     <script>
-        // Configuración MQTT
-        const broker = "90883d7a8ff64950af6e002e4bd77ee3.s1.eu.hivemq.cloud";
-        const port = 8884;
-        const topic = "esp32/dht11";
-        const clientId = "webclient_" + Math.random().toString(16).substr(2, 8);
+        // Configuración MQTT (HiveMQ Cloud)
+        const broker = "90883d7a8ff64950af6e002e4bd77ee3.s1.eu.hivemq.cloud"; // Cambia por tu broker
+        const port = 8884; // Websocket (SSL)
+        const topic = "casa/dht11";
         
-        let client;
-        let sensorChart;
-        let timeStamps = [];
-        let tempData = [];
-        let humData = [];
-        const maxDataPoints = 20;
+        // Conexión MQTT
+        const client = new Paho.MQTT.Client(broker, port, "web_" + parseInt(Math.random() * 100, 10));
         
-        // Inicializar gráfico
-        function initChart() {
-            const ctx = document.getElementById('sensorChart').getContext('2d');
-            sensorChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: timeStamps,
-                    datasets: [
-                        {
-                            label: 'Temperatura °C',
-                            data: tempData,
-                            borderColor: 'rgb(255, 99, 132)',
-                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                            tension: 0.1
-                        },
-                        {
-                            label: 'Humedad %',
-                            data: humData,
-                            borderColor: 'rgb(54, 162, 235)',
-                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                            tension: 0.1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: false
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Conectar a MQTT
-        function connectMQTT() {
-            client = new Paho.MQTT.Client(broker, port, clientId);
-            
-            client.onConnectionLost = onConnectionLost;
-            client.onMessageArrived = onMessageArrived;
-            
-            const options = {
-                onSuccess: onConnect,
-                useSSL: true,
-                userName: "githubpage",
-                password: "Ivan4826",
-                reconnect: true
-            };
-            
-            client.connect(options);
-        }
-        
-        function onConnect() {
-            addMessage("Conectado al broker MQTT");
-            client.subscribe(topic);
-            addMessage(`Suscrito al tema: ${topic}`);
-        }
-        
-        function onConnectionLost(responseObject) {
-            if (responseObject.errorCode !== 0) {
-                addMessage("Error de conexión: " + responseObject.errorMessage);
-            }
-        }
-        
-        function onMessageArrived(message) {
-            try {
-                const data = JSON.parse(message.payloadString);
-                const now = new Date();
-                const timeString = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
-                
-                // Actualizar valores
-                document.getElementById("temperature").textContent = data.temperatura.toFixed(1) + " °C";
-                document.getElementById("humidity").textContent = data.humedad.toFixed(1) + " %";
-                
-                // Agregar datos al gráfico
-                timeStamps.push(timeString);
-                tempData.push(data.temperatura);
-                humData.push(data.humedad);
-                
-                // Limitar número de puntos de datos
-                if (timeStamps.length > maxDataPoints) {
-                    timeStamps.shift();
-                    tempData.shift();
-                    humData.shift();
-                }
-                
-                // Actualizar gráfico
-                sensorChart.data.labels = timeStamps;
-                sensorChart.data.datasets[0].data = tempData;
-                sensorChart.data.datasets[1].data = humData;
-                sensorChart.update();
-                
-                addMessage(`Datos recibidos: ${message.payloadString}`);
-            } catch (e) {
-                addMessage("Error procesando mensaje: " + e);
-            }
-        }
-        
-        function addMessage(text) {
-            const messagesDiv = document.getElementById('messages');
-            messagesDiv.innerHTML += `<p>${new Date().toLocaleTimeString()}: ${text}</p>`;
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-        
-        // Inicializar cuando la página carga
-        window.onload = function() {
-            initChart();
-            connectMQTT();
+        client.onConnectionLost = (response) => {
+            console.log("Conexión perdida:", response.errorMessage);
         };
+        
+        client.onMessageArrived = (message) => {
+            const data = JSON.parse(message.payloadString);
+            document.getElementById("temperature").textContent = data.temperatura;
+            document.getElementById("humidity").textContent = data.humedad;
+            console.log("Datos recibidos:", data);
+        };
+        
+        const options = {
+            useSSL: true,
+            userName: "githubpage", // Cambia por tu usuario
+            password: "Ivan4826", // Cambia por tu contraseña
+            onSuccess: () => {
+                console.log("Conectado a HiveMQ Cloud");
+                client.subscribe(topic);
+            },
+            onFailure: (err) => {
+                console.error("Error de conexión:", err.errorMessage);
+            }
+        };
+        
+        // Iniciar conexión
+        client.connect(options);
     </script>
 </body>
 </html>
