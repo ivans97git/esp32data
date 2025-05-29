@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESP32 DHT11 Monitor</title>
     <link rel="stylesheet" href="style.css"> <!-- Opcional -->
+      <!-- Carga Paho MQTT primero -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
-    <script src="script.js" defer></script> <!-- Importa JavaScript -->
+    <!-- Luego tu script, con defer para esperar a que el DOM esté listo -->
+    <script src="script.js" defer></script>
 </head>
 <body>
     <h1>ESP32 con DHT11 - Monitoreo en Tiempo Real</h1>
@@ -20,5 +22,17 @@
         <strong>Humedad:</strong>
         <span id="humidity">--</span> %
     </div>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 DHT11 Monitor</title>
+
+</head>
+<body>
+    <!-- Tu contenido HTML -->
 </body>
 </html>
