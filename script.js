@@ -24,7 +24,6 @@ client.onMessageArrived = (message) => {
         const data = JSON.parse(message.payloadString);
         temperatureElement.textContent = data.temperatura;
         humidityElement.textContent = data.humedad;
-        porcetajeNivelElement.textContent = data.porcentajenivel;
         console.log("Datos actualizados:", data);
     } catch (error) {
         console.error("Error al procesar mensaje:", error);
