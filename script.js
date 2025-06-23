@@ -1,7 +1,7 @@
 // Configuración MQTT (HiveMQ Cloud)
 const broker = "90883d7a8ff64950af6e002e4bd77ee3.s1.eu.hivemq.cloud"; // Cambia por tu broker
 const port = 8884; // Puerto para WebSocket (SSL)
-const topic = "casa/sensores";
+const topic = "casa/dht11";
 
 // Elementos del DOM
 const temperatureElement = document.getElementById("temperature");
